@@ -1,7 +1,21 @@
+# Stage 1: BUILD
+FROM node:lts-alpine AS builder
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+
+RUN npm run build
+
+# Stage 2: SERVE
 FROM nginx:alpine
-RUN rm -rf /etc/nginx/conf.d/*
-RUN rm -rf /usr/share/nginx/html/*
-COPY dist/ /usr/share/nginx/html/
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/dist /usr/share/nginx/html
+
 EXPOSE 80
+
+HEALTHCHECK --interval=5m --timeout=3s CMD curl -f http://localhost/ || exit 1
+
+
 CMD ["nginx", "-g", "daemon off;"]
