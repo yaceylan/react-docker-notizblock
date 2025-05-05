@@ -1,8 +1,8 @@
-node_modules
-dist
-scripts
-Dockerfile
-.dockerignore
-
-
-
+node_modules/
+.git/
+.env
+build/
+dist/
+tmp/
+temp/
+*.log
