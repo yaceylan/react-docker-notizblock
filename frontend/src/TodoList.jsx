@@ -1,87 +1,59 @@
-import React, { useState, useEffect } from "react";
-
-const API_URL = import.meta.env.VITE_API_URL + "/api/todos";
+import React, { useState, useEffect } from 'react';
 
 function TodoList() {
   const [todos, setTodos] = useState([]);
-  const [newTodoText, setNewTodoText] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [newTodoText, setNewTodoText] = useState('');
 
   useEffect(() => {
-    fetch(API_URL)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        setTodos(data);
-        setLoading(false);
-      })
-      .catch(error => {
-        setError(error);
-        setLoading(false);
-      });
-  }, [API_URL]);
+    fetch(`${import.meta.env.VITE_API_URL}/api/items`)
+      .then(response => response.json())
+      .then(data => setTodos(data));
+  }, []);
 
   const handleAddTodo = () => {
-    fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text: newTodoText }),
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
+    if (newTodoText.trim()) {
+      fetch(`${import.meta.env.VITE_API_URL}/api/items`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: newTodoText }),
       })
-      .then(newTodo => {
-        setTodos([...todos, newTodo]);
-        setNewTodoText("");
-      })
-      .catch(error => setError(error));
+        .then(response => response.json())
+        .then(data => {
+          setTodos([...todos, data]);
+          setNewTodoText(''); // Eingabefeld leeren
+        });
+    }
   };
 
-  const handleDeleteTodo = (id) => {
-    fetch(`${API_URL}/${id}`, {
-      method: "DELETE",
+  const handleDeleteTodo = (idToDelete) => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/items/${idToDelete}`, {
+      method: 'DELETE',
     })
-      .then(response => {
-        if (response.status === 204) {
-          setTodos(todos.filter(todo => todo.id !== id));
-        } else if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-      })
-      .catch(error => setError(error));
+      .then(() => setTodos(todos.filter(todo => todo.id !== idToDelete)));
   };
-
-  if (loading) return <p>Loading todos...</p>;
-  if (error) return <p>Error fetching todos: {error.message}</p>;
 
   return (
     <div>
-      <h2>Todos vom Backend</h2>
-      <ul>
-        {todos.map(todo => (
-          <li key={todo.id}>
-            {todo.text} <button onClick={() => handleDeleteTodo(todo.id)}>Löschen</button>
-          </li>
-        ))}
-      </ul>
+      <h1>Meine Todos</h1>
       <div>
         <input
           type="text"
           value={newTodoText}
-          onChange={e => setNewTodoText(e.target.value)}
+          onChange={(e) => setNewTodoText(e.target.value)}
+          placeholder="Neues Todo hinzufügen"
         />
-        <button onClick={handleAddTodo}>Neues Todo hinzufügen</button>
+        <button onClick={handleAddTodo}>Hinzufügen</button>
       </div>
+      <ul>
+        {todos.map(todo => (
+          <li key={todo.id}>
+            {todo.text}
+            <button onClick={() => handleDeleteTodo(todo.id)}>Löschen</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
