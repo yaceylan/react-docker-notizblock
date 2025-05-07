@@ -12,10 +12,10 @@ RUN --mount=type=cache,target=/root/.npm npm run build -- --base=/
 # Stage 2: SERVE
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
 HEALTHCHECK --interval=5m --timeout=3s CMD curl -f http://localhost/ || exit 1
-
 
 CMD ["nginx", "-g", "daemon off;"]
