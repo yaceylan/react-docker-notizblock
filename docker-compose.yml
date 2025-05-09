@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  database:
+    image: postgres:17-alpine
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: mydb
+    expose:
+      - "5432"
+
+  backend:
+    build: ./backend
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_USER: myuser
+      DB_PASSWORD: mysecretpassword
+      DB_NAME: mydb
+    expose:
+      - "3000"
+    depends_on:
+      - database
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
