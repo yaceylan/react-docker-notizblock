@@ -5,6 +5,7 @@ services:
     image: postgres:17-alpine
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d/  # Diese Zeile wurde hinzugefügt
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mysecretpassword
