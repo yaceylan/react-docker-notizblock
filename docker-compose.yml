@@ -1,17 +1,18 @@
-version: "3.8"
-
 services:
   database:
     image: postgres:17-alpine
-    volumes:
-      - db_data:/var/lib/postgresql/data
-      - ./sql:/docker-entrypoint-initdb.d/  # Diese Zeile wurde hinzugefügt
     environment:
       POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_PASSWORD: mypassword
       POSTGRES_DB: mydb
-    expose:
-      - "5432"
+      POSTGRES_HOST_AUTH_METHOD: trust # Hinzugefügt: Authentifizierung auf "trust" setzen (NUR FÜR ENTWICKLUNG!)
+    volumes:
+      - db_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build: ./backend
@@ -19,22 +20,26 @@ services:
       DB_HOST: database
       DB_PORT: 5432
       DB_USER: myuser
-      DB_PASSWORD: mysecretpassword
+      DB_PASSWORD: mypassword
       DB_NAME: mydb
-    expose:
-      - "3000"
+    ports:
+      - 3000:3000
     depends_on:
       - database
+    networks:
+      - mynetwork
 
   frontend:
-    build:
-      context: ./frontend
-      args:
-        VITE_API_URL: /api
+    build: ./frontend
     ports:
-      - "8080:80"
+      - 8080:80
     depends_on:
       - backend
+    networks:
+      - mynetwork
 
 volumes:
   db_data:
+
+networks:
+  mynetwork:
