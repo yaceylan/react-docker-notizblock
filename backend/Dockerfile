@@ -1,12 +1,13 @@
-FROM node:lts-alpine
+FROM node:18-alpine AS builder
 WORKDIR /app
-# Installiere curl und andere Debug-Tools
-RUN cat /app/package.json || ls -al /app
-# Kopiere zuerst Paketdateien
 COPY package*.json ./
-# Installiere alle Abhängigkeiten (Produktion und Entwicklung)
-RUN npm install
+RUN npm ci --production
 COPY . .
-RUN ls -al /app
-RUN ls -al /app # Hinzugefügt: Nochmalige Auflistung nach dem Kopieren aller Dateien
+
+FROM node:18-alpine
+WORKDIR /app
+RUN apk add --no-cache curl
+COPY --from=builder /app . 
+EXPOSE 3000
 CMD ["node", "index.js"]
+

@@ -9,7 +9,7 @@ function TodoList() {
   useEffect(() => {
     const loadTodos = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/items`);
+        const response = await fetch(`/${import.meta.env.VITE_API_URL}/items`);
         if (!response.ok) {
           console.error(`HTTP error! status: ${response.status}`);
           return;
@@ -27,7 +27,7 @@ function TodoList() {
   const addTodo = async () => {
     if (newTodoText.trim()) {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/items`, {
+        const response = await fetch(`/${import.meta.env.VITE_API_URL}/items`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ function TodoList() {
 
   const deleteTodo = async (id) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/items/${id}`, {
+      const response = await fetch(`/${import.meta.env.VITE_API_URL}/items/${id}`, {
         method: 'DELETE',
       });
       if (response.status === 204) {
