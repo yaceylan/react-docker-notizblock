@@ -1,0 +1,43 @@
+replicaCount: 1
+image:
+  repository: yaceybln/my-config-app
+  pullPolicy: IfNotPresent
+  tag: latest
+service:
+  type: ClusterIP
+  port: 80
+backend:
+  replicaCount: 1
+  image: yaceybln/my-config-app:latest
+  imagePullPolicy: IfNotPresent
+  servicePort: 80
+  containerPort: 3000
+  database:
+    host: "database"
+    port: 5432
+    user: "myuser"
+    password: "mypassword"
+    name: "mydb"
+  greetingMessage: "Hallo von Helm!"
+  logLevel: "INFO"
+  apiKey: "your-api-key"
+frontend:
+  replicaCount: 1
+  image: yaceybln/react-frontend:latest
+  containerPort: 80
+  servicePort: 80
+ingress:
+  enabled: false
+  annotations: {}
+  tls: []
+  hosts:
+    - host: your-app.local
+      paths:
+        - path: /
+          backend:
+            serviceName: frontend-service
+            servicePort: 80
+        - path: /api
+          backend:
+            serviceName: backend-service
+            servicePort: 80

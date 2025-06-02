@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+data:
+  GREETING: "Hallo von Backend!"
+  API_VERSION: "v1"
